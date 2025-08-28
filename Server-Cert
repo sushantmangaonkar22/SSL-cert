@@ -1,0 +1,63 @@
+======================================================cgl-mdrp05wb01.lin.adtalem.com======MYDR-cert-upload on server=========================================
+
+sudo find / -type f \( -name "*.jks" -o -name "*.key" -o -name "*.crt" \) 2>/dev/null
+
+cd /data1/apps/certs/
+
+/etc/httpd/conf.d   ----> cert details/descriptions
+
+###certificate directory-->  /data1/apps/certs/
+
+#</VirtualHost>
+ 
+<VirtualHost 10.100.7.68:443>
+    #ServerName cgl-mdrp05wb01.lin.adtalem.com
+    #ServerName mydoctoralresearchtesting.waldenu.edu
+    #ServerName mydoctoralresearch.waldenu.edu
+RewriteEngine on
+    RedirectPermanent /  https://mydoctoralresearch.waldenu.edu/wlp/walden/home
+    #RedirectPermanent /  http://cgl-mdrp05ap01.lin.adtalem.com:8080/wlp/walden/home
+    #RedirectPermanent / https://mydoctoralresearchtesting.waldenu.edu/wlp/walden/home
+ 
+    SSLEngine on
+    SSLProxyEngine On
+    SSLCertificateFile /data1/apps/certs/cgl-mdrp05wb01.lin.adtalem.com.crt
+    SSLCertificateKeyFile /data1/apps/certs/cgl-mdrp05wb01.lin.adtalem.com.key
+    SSLCertificateChainFile /data1/apps/certs/cgl-mdrp05wb01.lin.adtalem.com_int.crt
+
+#step:1 find out cert files on server.
+
+sudo find / -type f \( -name "*.jks" -o -name "*.key" -o -name "*.crt" \) 2>/dev/null
+
+you will get below details
+/data1/apps/certs/cgl-mdrp05wb01.lin.adtalem.com.crt ----main cert open it and validate from servicenow
+/data1/apps/certs/cgl-mdrp05wb01.lin.adtalem.com.key  --key file
+/data1/apps/certs/cgl-mdrp05wb01.lin.adtalem.com_int.crt --- intermidiate cert
+
+
+#step:2 #take a backup of all three certificates.
+
+#step:3 # edit certificate files using new main,intermidiate and key file
+
+#step:4  #validate once edited files data is correct or not?
+
+#step:5  # check certificate updated in backend or not
+
+ps -ef | grep 443
+
+netstat -t unlp | grep 443 --->check output #in output Listen should be there
+
+openssl s_client -connect 10.100.7.68:443 -showcerts
+
+openssl s_client -connect 10.100.7.68:443 2>/dev/null | openssl x509 -noout -dates
+
+#its showing old certificate at backend cert doesnt sync.
+
+#step:6  #to resolve this issue please reboot the server.
+sudo reboot
+
+Start all the services using command from inventory
+
+cgl-mdrp05wb01.lin.adtalem.com	sudo su - root 	ps -ef | grep httpd 	stopapache	startapache
+
+#step:7 again excute step 5 you can able to see new cert and key details at backend.
