@@ -58,6 +58,59 @@ sudo reboot
 
 Start all the services using command from inventory
 
+
+##PKCS12 format######################################.p12############################################################################
+
+approach:1
+
+.p12
+import chain .cer file to okta.jks
+delete old alias root and intermidiate  #eytool -delete -alias <alias_name> -keystore okta.jks  ###delete alias root intermidiate
+#create new .cer file for root and intermidite and import them seperately.
+
+approch2:
+
+keytool -import -alias intermediate -keystore keystore.jks -file cal-mulp00ap04_adtalem_com_interm.cer
+
+
+=======================================
+cp /path/to/keystore.jks /path/to/keystore_backup.jks
+
+
+openssl pkcs12 -export -in cal-mulp00ap03.adtalem.com.cer -inkey calulp00ap03.adtalem.com.key -out keystore.p12 -name cal-oktq00ap01.qa.adtalem.com
+
+keytool -importkeystore -deststorepass changeit -destkeypass changeit -destkeystore 
+OKTAQA.jks -srckeystore keystore.p12 -srcstoretype PKCS12 -alias cal-oktq00ap01.qa.adtalem.com
+
+==================================================
+keytool -list -keystore keystore.p12 -v
+
+keytool -list -keystore OKTAQA.jks -v
+
+keytool delete alias name certname okta.jks
+
+keytool -delete -alias <alias_name> -keystore okta.jks  ###delete alias root intermidiate
+
+keytool -import -alias intermediate -keystore keystore.jks -file cal-mulp00ap04_adtalem_com_interm.cer
+
+==========================================
+Worknote: OKTA Certificate Implementation
+
+We initially followed Method 2 on AP02, where we created the main.cer file and imported it into OKTA.jks. However, later, we switched to Method 1, 
+which was also used for AP01.
+
+In Method 1, we created a certificate chain and used the chain.cer and key file to generate a .p12 file. This .p12 file was then imported into OKTA.jks 
+for both servers.
+==========================================================================
+
+
+
+
+
+
+
+
+
 cgl-mdrp05wb01.lin.adtalem.com	sudo su - root 	ps -ef | grep httpd 	stopapache	startapache
 
 #step:7 again excute step 5 you can able to see new cert and key details at backend.
